@@ -3,34 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raspberry Pi Camera Stream</title>
+    <title>Pi Ring Camera - Live</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+    <nav class="navbar">
+        <a href="/" class="nav-link active">Live Feed</a>
+        <a href="/alerts" class="nav-link">Alerts</a>
+    </nav>
+    
     <div class="container">
         <h1>Live Camera Feed</h1>
+        <div class="status-indicator">
+            <span class="status-dot"></span>
+            <span>Monitoring Active</span>
+        </div>
         <div class="video-feed">
             <img src="/video_feed" alt="Live camera feed" id="camera-feed">
         </div>
-        
-        <div class="gallery-section">
-            <h2>Select Date to View Gallery</h2>
-            <div class="options">
-                <input type="date" id="datePicker">
-                <button id="loadButton">Load Gallery</button>
-            </div>
-        </div>
     </div>
-
-    <script>
-        document.getElementById("loadButton").addEventListener("click", function() {
-            var selectedDate = document.getElementById("datePicker").value;
-            if(selectedDate) {
-                window.location.href = "/gallery?date=" + selectedDate;
-            } else {
-                alert("Please select a date first.");
-            }
-        });
-    </script>
 </body>
 </html>

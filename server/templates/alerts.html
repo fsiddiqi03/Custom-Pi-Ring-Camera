@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pi Ring Camera - Alerts</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="nav-link">Live Feed</a>
+        <a href="/alerts" class="nav-link active">Alerts</a>
+    </nav>
+    
+    <div class="container alerts-page">
+        <h1>Alert History</h1>
+        
+        <div class="search-section">
+            <div class="search-controls">
+                <div class="search-group">
+                    <label for="dateFilter">Date</label>
+                    <input type="date" id="dateFilter">
+                </div>
+                <div class="search-group">
+                    <label for="startTime">From</label>
+                    <input type="time" id="startTime" value="00:00">
+                </div>
+                <div class="search-group">
+                    <label for="endTime">To</label>
+                    <input type="time" id="endTime" value="23:59">
+                </div>
+                <button id="searchBtn" class="btn-primary">Search</button>
+                <button id="clearBtn" class="btn-secondary">Clear</button>
+            </div>
+        </div>
+        
+        <div class="videos-container">
+            <div id="loading" class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Loading alerts...</p>
+            </div>
+            <div id="noResults" class="no-results" style="display: none;">
+                <p>No alerts found for the selected criteria.</p>
+            </div>
+            <div id="videosGrid" class="videos-grid"></div>
+        </div>
+    </div>
+
+    <!-- Video Modal -->
+    <div id="videoModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <video id="modalVideo" controls></video>
+            <p id="modalTitle" class="modal-title"></p>
+        </div>
+    </div>
+
+    <script>
+        const videosGrid = document.getElementById('videosGrid');
+        const loading = document.getElementById('loading');
+        const noResults = document.getElementById('noResults');
+        const modal = document.getElementById('videoModal');
+        const modalVideo = document.getElementById('modalVideo');
+        const modalTitle = document.getElementById('modalTitle');
+        const closeBtn = document.querySelector('.close-btn');
+        
+        // Set default date to today
+        document.getElementById('dateFilter').valueAsDate = new Date();
+        
+        // Load all videos on page load
+        loadVideos();
+        
+        document.getElementById('searchBtn').addEventListener('click', loadVideos);
+        document.getElementById('clearBtn').addEventListener('click', clearFilters);
+        
+        function clearFilters() {
+            document.getElementById('dateFilter').value = '';
+            document.getElementById('startTime').value = '00:00';
+            document.getElementById('endTime').value = '23:59';
+            loadVideos();
+        }
+        
+        async function loadVideos() {
+            loading.style.display = 'flex';
+            noResults.style.display = 'none';
+            videosGrid.innerHTML = '';
+            
+            const date = document.getElementById('dateFilter').value;
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            
+            let url = '/api/videos';
+            const params = new URLSearchParams();
+            if (date) params.append('date', date);
+            if (startTime) params.append('start_time', startTime);
+            if (endTime) params.append('end_time', endTime);
+            if (params.toString()) url += '?' + params.toString();
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                loading.style.display = 'none';
+                
+                if (data.videos.length === 0) {
+                    noResults.style.display = 'block';
+                    return;
+                }
+                
+                data.videos.forEach(video => {
+                    const card = createVideoCard(video);
+                    videosGrid.appendChild(card);
+                });
+            } catch (error) {
+                loading.style.display = 'none';
+                noResults.innerHTML = '<p>Error loading videos. Please try again.</p>';
+                noResults.style.display = 'block';
+                console.error('Error:', error);
+            }
+        }
+        
+        function createVideoCard(video) {
+            const card = document.createElement('div');
+            card.className = 'video-card';
+            
+            const date = new Date(video.timestamp);
+            const formattedDate = date.toLocaleDateString('en-US', { 
+                weekday: 'short', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+            const formattedTime = date.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            card.innerHTML = `
+                <div class="video-thumbnail">
+                    <div class="play-overlay">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="video-info">
+                    <span class="video-date">${formattedDate}</span>
+                    <span class="video-time">${formattedTime}</span>
+                </div>
+            `;
+            
+            card.addEventListener('click', () => openModal(video));
+            return card;
+        }
+        
+        function openModal(video) {
+            const date = new Date(video.timestamp);
+            modalTitle.textContent = date.toLocaleString();
+            modalVideo.src = video.url;
+            modal.style.display = 'flex';
+            modalVideo.play();
+        }
+        
+        closeBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+        
+        function closeModal() {
+            modal.style.display = 'none';
+            modalVideo.pause();
+            modalVideo.src = '';
+        }
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+    </script>
+</body>
+</html>
+
