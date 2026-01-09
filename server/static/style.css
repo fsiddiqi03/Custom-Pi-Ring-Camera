@@ -3,25 +3,29 @@
 }
 
 :root {
-    --bg-primary: #0a0e17;
-    --bg-secondary: #121a2a;
-    --bg-card: #1a2438;
-    --accent-cyan: #00d4ff;
-    --accent-magenta: #ff006e;
-    --accent-green: #00ff88;
-    --text-primary: #e8eaed;
-    --text-secondary: #9aa0a6;
-    --border-color: rgba(0, 212, 255, 0.2);
+    --bg-primary: #000000;
+    --bg-secondary: #0a0a0a;
+    --bg-card: #141414;
+    --accent-primary: #ffffff;
+    --accent-secondary: #888888;
+    --text-primary: #ffffff;
+    --text-secondary: #888888;
+    --border-color: rgba(255, 255, 255, 0.15);
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    width: 100%;
+    background: #000000;
+    background-attachment: fixed;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 body {
-    margin: 0;
-    padding: 0;
-    background: var(--bg-primary);
-    background-image: 
-        radial-gradient(ellipse at 20% 20%, rgba(0, 212, 255, 0.08) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 80%, rgba(255, 0, 110, 0.06) 0%, transparent 50%);
-    min-height: 100vh;
     font-family: system-ui, -apple-system, sans-serif;
     color: var(--text-primary);
 }
@@ -29,13 +33,14 @@ body {
 /* Navbar */
 .navbar {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 60px;
-    background: rgba(10, 14, 23, 0.95);
+    top: 12px;
+    left: 20px;
+    right: 20px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border-color);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 25px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -56,14 +61,13 @@ body {
 }
 
 .nav-link:hover {
-    color: var(--accent-cyan);
-    background: rgba(0, 212, 255, 0.1);
+    color: var(--accent-primary);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .nav-link.active {
-    color: var(--accent-cyan);
-    background: rgba(0, 212, 255, 0.15);
-    box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+    color: var(--accent-primary);
+    background: rgba(255, 255, 255, 0.15);
 }
 
 /* Container */
@@ -71,20 +75,19 @@ body {
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 80px 20px 40px;
+    padding: 100px 20px 40px;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
 }
 
 h1 {
     font-size: 2.2rem;
     font-weight: 600;
     margin: 20px 0;
-    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--text-primary);
 }
 
 /* Status Indicator */
@@ -94,17 +97,17 @@ h1 {
     gap: 10px;
     font-family: monospace;
     font-size: 0.85rem;
-    color: var(--accent-green);
+    color: var(--accent-primary);
     margin-bottom: 20px;
 }
 
 .status-dot {
     width: 10px;
     height: 10px;
-    background: var(--accent-green);
+    background: rgb(0, 255, 85);
     border-radius: 50%;
     animation: pulse 2s infinite;
-    box-shadow: 0 0 10px var(--accent-green);
+    box-shadow: 0 0 10px rgba(0, 255, 85, 0.5);
 }
 
 @keyframes pulse {
@@ -115,27 +118,32 @@ h1 {
 /* Video Feed */
 .video-feed {
     background: var(--bg-secondary);
-    border: 2px solid var(--border-color);
-    border-radius: 16px;
+    border: 3px solid var(--border-color);
+    border-radius: 50%;
     padding: 12px;
-    box-shadow: 
-        0 0 40px rgba(0, 212, 255, 0.1),
-        inset 0 0 60px rgba(0, 0, 0, 0.3);
-    width: 100%;
-    max-width: 900px;
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.05);
+    width: 550px;
+    height: 550px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #camera-feed {
-    border-radius: 10px;
-    max-width: 100%;
-    height: auto;
-    display: block;
+    border-radius: 50%;
     width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #000;
 }
 
 /* Alerts Page */
-.alerts-page {
+.container.alerts-page {
     padding-top: 100px;
+    justify-content: flex-start;
+    min-height: 0;
+    padding-bottom: 60px;
 }
 
 .search-section {
@@ -183,8 +191,8 @@ h1 {
 
 .search-group input:focus {
     outline: none;
-    border-color: var(--accent-cyan);
-    box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
 }
 
 .btn-primary, .btn-secondary {
@@ -199,13 +207,14 @@ h1 {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--accent-cyan), #0099cc);
-    color: var(--bg-primary);
+    background: #1e40af;
+    color: #ffffff;
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+    box-shadow: 0 8px 25px rgba(30, 64, 175, 0.4);
+    background: #1e3a8a;
 }
 
 .btn-secondary {
@@ -215,8 +224,8 @@ h1 {
 }
 
 .btn-secondary:hover {
-    border-color: var(--accent-magenta);
-    color: var(--accent-magenta);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
 }
 
 /* Videos Container */
@@ -242,8 +251,8 @@ h1 {
 
 .video-card:hover {
     transform: translateY(-5px);
-    border-color: var(--accent-cyan);
-    box-shadow: 0 15px 40px rgba(0, 212, 255, 0.15);
+    border-color: var(--accent-primary);
+    box-shadow: 0 15px 40px rgba(255, 255, 255, 0.1);
 }
 
 .video-thumbnail {
@@ -258,7 +267,7 @@ h1 {
 .play-overlay {
     width: 60px;
     height: 60px;
-    background: rgba(0, 212, 255, 0.9);
+    background: #1e40af;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -269,13 +278,14 @@ h1 {
 .play-overlay svg {
     width: 28px;
     height: 28px;
-    color: var(--bg-primary);
+    color: #ffffff;
     margin-left: 4px;
 }
 
 .video-card:hover .play-overlay {
     transform: scale(1.1);
-    box-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+    box-shadow: 0 0 30px rgba(30, 64, 175, 0.5);
+    background: #1e3a8a;
 }
 
 .video-info {
@@ -293,7 +303,7 @@ h1 {
 .video-time {
     font-family: monospace;
     font-size: 0.85rem;
-    color: var(--accent-cyan);
+    color: var(--text-secondary);
 }
 
 /* Loading */
@@ -310,7 +320,7 @@ h1 {
     width: 40px;
     height: 40px;
     border: 3px solid var(--border-color);
-    border-top-color: var(--accent-cyan);
+    border-top-color: var(--accent-primary);
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
@@ -333,7 +343,7 @@ h1 {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.95);
     backdrop-filter: blur(10px);
     z-index: 200;
     align-items: center;
@@ -357,7 +367,8 @@ h1 {
     right: -15px;
     width: 40px;
     height: 40px;
-    background: var(--accent-magenta);
+    background: var(--accent-primary);
+    color: var(--bg-primary);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -389,8 +400,23 @@ h1 {
 
 /* Responsive */
 @media (max-width: 768px) {
+    html, body {
+        background: #000000;
+        background-attachment: fixed;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        overscroll-behavior: none;
+        -webkit-overflow-scrolling: touch;
+        min-width: 100vw;
+        min-height: 100vh;
+        height: 100%;
+    }
+    
     .navbar {
         gap: 20px;
+        left: 10px;
+        right: 10px;
     }
     
     .nav-link {
@@ -402,21 +428,36 @@ h1 {
         font-size: 1.6rem;
     }
     
+    .container {
+        padding: 80px 15px 30px;
+    }
+    
+    .video-feed {
+        width: 300px;
+        height: 300px;
+    }
+    
     .search-controls {
         flex-direction: column;
         align-items: stretch;
     }
     
+    .search-section {
+        padding: 16px;
+    }
+    
     .search-group {
-        width: 100%;
+        width: 91%;
     }
     
     .search-group input {
         width: 100%;
+        box-sizing: border-box;
     }
     
     .btn-primary, .btn-secondary {
         width: 100%;
+        box-sizing: border-box;
     }
     
     .videos-grid {

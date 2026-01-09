@@ -10,24 +10,20 @@
     <nav class="navbar">
         <a href="/" class="nav-link">Live Feed</a>
         <a href="/alerts" class="nav-link active">Alerts</a>
+        <a href="/stats" class="nav-link">Stats</a>
     </nav>
     
     <div class="container alerts-page">
-        <h1>Alert History</h1>
         
         <div class="search-section">
             <div class="search-controls">
                 <div class="search-group">
-                    <label for="dateFilter">Date</label>
-                    <input type="date" id="dateFilter">
+                    <label for="startDate">From</label>
+                    <input type="date" id="startDate">
                 </div>
                 <div class="search-group">
-                    <label for="startTime">From</label>
-                    <input type="time" id="startTime" value="00:00">
-                </div>
-                <div class="search-group">
-                    <label for="endTime">To</label>
-                    <input type="time" id="endTime" value="23:59">
+                    <label for="endDate">To</label>
+                    <input type="date" id="endDate">
                 </div>
                 <button id="searchBtn" class="btn-primary">Search</button>
                 <button id="clearBtn" class="btn-secondary">Clear</button>
@@ -64,9 +60,6 @@
         const modalTitle = document.getElementById('modalTitle');
         const closeBtn = document.querySelector('.close-btn');
         
-        // Set default date to today
-        document.getElementById('dateFilter').valueAsDate = new Date();
-        
         // Load all videos on page load
         loadVideos();
         
@@ -74,9 +67,8 @@
         document.getElementById('clearBtn').addEventListener('click', clearFilters);
         
         function clearFilters() {
-            document.getElementById('dateFilter').value = '';
-            document.getElementById('startTime').value = '00:00';
-            document.getElementById('endTime').value = '23:59';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
             loadVideos();
         }
         
@@ -85,15 +77,13 @@
             noResults.style.display = 'none';
             videosGrid.innerHTML = '';
             
-            const date = document.getElementById('dateFilter').value;
-            const startTime = document.getElementById('startTime').value;
-            const endTime = document.getElementById('endTime').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
             
             let url = '/api/videos';
             const params = new URLSearchParams();
-            if (date) params.append('date', date);
-            if (startTime) params.append('start_time', startTime);
-            if (endTime) params.append('end_time', endTime);
+            if (startDate) params.append('start_date', startDate);
+            if (endDate) params.append('end_date', endDate);
             if (params.toString()) url += '?' + params.toString();
             
             try {

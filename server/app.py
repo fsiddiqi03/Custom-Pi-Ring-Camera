@@ -5,6 +5,8 @@ from s3_uploader import S3Uploader
 import time
 import threading
 from detection import detect_person_lambda
+from pi_stats import get_pi_stats
+
 
 app = Flask(__name__)
 s3_uploader = S3Uploader()
@@ -122,13 +124,21 @@ def alerts():
 
 @app.route('/api/videos')
 def api_videos():
-    """API endpoint to list videos from S3 with optional filtering"""
-    date_filter = request.args.get('date')
-    start_time = request.args.get('start_time')
-    end_time = request.args.get('end_time')
+    """API endpoint to list videos from S3 with optional date range filtering"""
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
     
-    videos = s3_uploader.list_videos(date_filter, start_time, end_time)
+    videos = s3_uploader.list_videos(start_date, end_date)
     return jsonify({'videos': videos})
+
+
+@app.route('/stats')
+def stats():
+    return render_template('stats.html')
+
+@app.route('/api/stats')
+def api_stats():
+    return jsonify(get_pi_stats())
 
 if __name__ == '__main__':
     detection_thread = threading.Thread(target=check_for_person)

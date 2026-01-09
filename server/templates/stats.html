@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pi Ring Camera - System Stats</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='stats.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="nav-link">Live Feed</a>
+        <a href="/alerts" class="nav-link">Alerts</a>
+        <a href="/stats" class="nav-link active">Stats</a>
+    </nav>
+    
+    <div class="container stats-page">
+        
+        <div class="stats-grid">
+            <div class="stat-box">
+                <span class="stat-label">Home Temperature</span>
+                <div class="chart-container">
+                    <svg viewBox="0 0 120 120">
+                        <circle class="chart-bg" cx="60" cy="60" r="50"></circle>
+                        <circle class="chart-fill" id="homeTempChart" cx="60" cy="60" r="50" 
+                                stroke-dasharray="314" stroke-dashoffset="314"></circle>
+                    </svg>
+                    <span class="chart-value" id="homeTempValue">--°F</span>
+                </div>
+            </div>
+
+            <div class="stat-box">
+                <span class="stat-label">CPU Usage</span>
+                <div class="chart-container">
+                    <svg viewBox="0 0 120 120">
+                        <circle class="chart-bg" cx="60" cy="60" r="50"></circle>
+                        <circle class="chart-fill" id="cpuChart" cx="60" cy="60" r="50" 
+                                stroke-dasharray="314" stroke-dashoffset="314"></circle>
+                    </svg>
+                    <span class="chart-value" id="cpuValue">--%</span>
+                </div>
+            </div>
+            
+            <div class="stat-box">
+                <span class="stat-label">CPU Temperature</span>
+                <div class="chart-container">
+                    <svg viewBox="0 0 120 120">
+                        <circle class="chart-bg" cx="60" cy="60" r="50"></circle>
+                        <circle class="chart-fill" id="tempChart" cx="60" cy="60" r="50" 
+                                stroke-dasharray="314" stroke-dashoffset="314"></circle>
+                    </svg>
+                    <span class="chart-value" id="tempValue">--°C</span>
+                </div>
+            </div>
+            
+            <div class="stat-box">
+                <span class="stat-label">RAM Usage</span>
+                <div class="chart-container">
+                    <svg viewBox="0 0 120 120">
+                        <circle class="chart-bg" cx="60" cy="60" r="50"></circle>
+                        <circle class="chart-fill" id="ramChart" cx="60" cy="60" r="50" 
+                                stroke-dasharray="314" stroke-dashoffset="314"></circle>
+                    </svg>
+                    <span class="chart-value" id="ramValue">--%</span>
+                </div>
+            </div>
+            
+            <div class="stat-box">
+                <span class="stat-label">Disk Usage</span>
+                <div class="chart-container">
+                    <svg viewBox="0 0 120 120">
+                        <circle class="chart-bg" cx="60" cy="60" r="50"></circle>
+                        <circle class="chart-fill" id="diskChart" cx="60" cy="60" r="50" 
+                                stroke-dasharray="314" stroke-dashoffset="314"></circle>
+                    </svg>
+                    <span class="chart-value" id="diskValue">--%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const circumference = 2 * Math.PI * 50; // 314
+        
+        function updateChart(chartId, valueId, percent, suffix = '%') {
+            const chart = document.getElementById(chartId);
+            const value = document.getElementById(valueId);
+            const offset = circumference - (percent / 100) * circumference;
+            chart.style.strokeDashoffset = offset;
+            value.textContent = Math.round(percent) + suffix;
+        }
+        
+        function getPercentColor(percent) {
+            // Convert percentage (0-100) to hue (green=120, yellow=60, red=0)
+            // Green (120) at 0%, Yellow (60) at 50%, Red (0) at 100%
+            const hue = 120 - (percent / 100) * 120;
+            return `hsl(${hue}, 100%, 50%)`;
+        }
+        
+        async function fetchStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+                
+                // CPU Usage
+                updateChart('cpuChart', 'cpuValue', data.cpu_usage);
+                document.getElementById('cpuChart').style.stroke = getPercentColor(data.cpu_usage);
+                
+                // CPU Temperature (based on 95°C max)
+                const tempPercent = (data.cpu_temperature / 95) * 100;
+                updateChart('tempChart', 'tempValue', tempPercent, '');
+                document.getElementById('tempValue').textContent = data.cpu_temperature + '°C';
+                document.getElementById('tempChart').style.stroke = getPercentColor(tempPercent);
+                
+                // RAM Usage
+                updateChart('ramChart', 'ramValue', data.ram_usage);
+                document.getElementById('ramChart').style.stroke = getPercentColor(data.ram_usage);
+                
+                // Disk Usage
+                updateChart('diskChart', 'diskValue', data.disk_usage);
+                document.getElementById('diskChart').style.stroke = getPercentColor(data.disk_usage);
+
+                // Home Temp
+                const homeTemp = data.home_temperature || 0;
+                // Cap at 100 for chart visualization (assuming 0-100F range)
+                const homeTempPercent = Math.min(Math.max(homeTemp, 0), 100);
+                updateChart('homeTempChart', 'homeTempValue', homeTempPercent, '°F');
+                document.getElementById('homeTempValue').textContent = homeTemp + '°F';
+                document.getElementById('homeTempChart').style.stroke = getPercentColor(homeTempPercent);
+
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+            }
+        }
+        
+        // Initial fetch
+        fetchStats();
+        
+        // Refresh every 3 seconds
+        setInterval(fetchStats, 3000);
+    </script>
+</body>
+</html>

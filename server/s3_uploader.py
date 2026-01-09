@@ -19,29 +19,6 @@ class S3Uploader:
     def create_file_name(self, extension='jpg'):
         return datetime.now().strftime("%Y%m%d_%H%M%S") + f".{extension}"
     
-    def upload_file(self, frame):
-        """Upload a single frame as JPEG"""
-        file_name = self.create_file_name('jpg')
-        
-        ret, buffer = cv2.imencode('.jpg', frame)
-        if not ret:
-            print("Failed to encode frame")
-            return False
-        
-        frame_bytes = buffer.tobytes()
-        
-        try:
-            self.s3.put_object(
-                Bucket=self.bucket_name,
-                Key=file_name,
-                Body=frame_bytes,
-                ContentType='image/jpeg'
-            )
-            print(f"Uploaded image: {file_name}")
-            return True
-        except Exception as e:
-            print(f"Error uploading to S3: {e}")
-            return False
     
     def upload_video(self, frames, fps=15):
         """
@@ -128,14 +105,13 @@ class S3Uploader:
             print(f"Error uploading video to S3: {e}")
             return False
     
-    def list_videos(self, date_filter=None, start_time=None, end_time=None):
+    def list_videos(self, start_date=None, end_date=None):
         """
-        List all videos from S3 bucket with optional date/time filtering
+        List all videos from S3 bucket with optional date range filtering
         
         Args:
-            date_filter: Optional date string (YYYY-MM-DD)
-            start_time: Optional start time string (HH:MM)
-            end_time: Optional end time string (HH:MM)
+            start_date: Optional start date string (YYYY-MM-DD)
+            end_date: Optional end date string (YYYY-MM-DD)
             
         Returns:
             List of video objects with url, filename, and timestamp
@@ -163,25 +139,15 @@ class S3Uploader:
                 except ValueError:
                     continue
                 
-                # Apply date filter
-                if date_filter:
-                    filter_date = datetime.strptime(date_filter, "%Y-%m-%d").date()
-                    if timestamp.date() != filter_date:
+                # Apply date range filter
+                if start_date:
+                    filter_start = datetime.strptime(start_date, "%Y-%m-%d").date()
+                    if timestamp.date() < filter_start:
                         continue
                 
-                # Apply time filters
-                if start_time:
-                    start_parts = start_time.split(':')
-                    start_minutes = int(start_parts[0]) * 60 + int(start_parts[1])
-                    video_minutes = timestamp.hour * 60 + timestamp.minute
-                    if video_minutes < start_minutes:
-                        continue
-                
-                if end_time:
-                    end_parts = end_time.split(':')
-                    end_minutes = int(end_parts[0]) * 60 + int(end_parts[1])
-                    video_minutes = timestamp.hour * 60 + timestamp.minute
-                    if video_minutes > end_minutes:
+                if end_date:
+                    filter_end = datetime.strptime(end_date, "%Y-%m-%d").date()
+                    if timestamp.date() > filter_end:
                         continue
                 
                 # Generate presigned URL for video playback
